@@ -2,12 +2,9 @@
 
 const copyfiles = require('copyfiles')
 
-const inputFolder = ['app/**/*.*', 'assets/**/*.*', 'build/**/*.*', 'gb-block/**/*.*', 'languages/**/*.*', 'vendor/**/*.*', 'date-today-nepali.php', 'readme.txt']
-const outputFolder = 'deploy/date-today-nepali'
-
-copyfiles([...inputFolder, outputFolder], {}, (err) => {
+copyfiles(['**/*', 'deploy/date-today-nepali'], { exclude: ['node_modules/**/*', 'deploy/**/*', '*.json', '*.yaml', '*.lock'] }, (err) => {
   if (err) {
     console.log('Error occurred while copying', err)
   }
-  console.log('folder(s) copied to destination')
+  console.log('Copied.')
 })
