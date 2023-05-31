@@ -40,6 +40,7 @@ const packtorGetExcludes = (files) => {
 }
 
 const alwaysExcludes = [
+  `${targetDir}/**/*`,
   'node_modules/**/*',
   'bower_components/**/*'
 ]
