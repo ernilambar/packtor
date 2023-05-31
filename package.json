@@ -1,0 +1,33 @@
+{
+  "name": "packtor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "packtor": "./index.js"
+  },
+  "scripts": {
+    "lint": "standard",
+    "lint:fix": "standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ernilambar/packtor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ernilambar/packtor/issues"
+  },
+  "homepage": "https://github.com/ernilambar/packtor#readme",
+  "standard": {
+    "globals": [
+      "__basedir"
+    ]
+  },
+  "devDependencies": {
+    "standard": "^17.1.0"
+  }
+}
