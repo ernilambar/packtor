@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "bin": {
     "packtor": "./index.js"
   },
@@ -29,5 +28,8 @@
   },
   "devDependencies": {
     "standard": "^17.1.0"
+  },
+  "dependencies": {
+    "copyfiles": "^2.4.1"
   }
 }
