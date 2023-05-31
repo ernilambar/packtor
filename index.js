@@ -5,13 +5,53 @@ const zip = require('bestzip')
 const path = require('path')
 const fs = require('fs-extra')
 
-const projectDir = process.cwd()
-const pkg = fs.readJsonSync(projectDir + '/package.json')
+const unixify = require('unixify')
+
+const cwd = unixify(process.cwd())
+
+const projectDir = cwd
+const pkg = fs.readJsonSync(path.join(projectDir, 'package.json'))
+
 const projectName = pkg.name
 
-const targetDir = 'deploy'
+const defaultOptions = {
+  destFolder: 'deploy',
+  files: ['**/*', '!node_modules/**/*', '!bower_components/**/*']
+}
 
-copyfiles(['**/*', `${targetDir}/${projectName}`], { exclude: ['node_modules/**/*', targetDir + '/**/*', '*.json', '*.yaml', '*.lock'] }, (err) => {
+const packageSettings = pkg.packtor
+
+const settings = Object.assign(defaultOptions, packageSettings)
+
+const targetDir = settings.destFolder
+
+const packtorGetIncludes = (files) => {
+  return files.filter(file => !file.startsWith('!'))
+}
+
+const packtorGetExcludes = (files) => {
+  const list = files.filter(file => file.startsWith('!'))
+
+  const output = []
+
+  list.forEach(element => output.push(element.slice(1)))
+
+  return output
+}
+
+const alwaysExcludes = [
+  'node_modules/**/*',
+  'bower_components/**/*'
+]
+
+const include = packtorGetIncludes(settings.files)
+let exclude = packtorGetExcludes(settings.files)
+
+exclude = exclude.concat(alwaysExcludes)
+
+exclude = exclude.filter((item, index, arr) => arr.indexOf(item) === index)
+
+copyfiles([...include, `${targetDir}/${projectName}`], { exclude }, (err) => {
   if (err) {
     console.log('Error occurred while copying', err)
   }
