@@ -1,6 +1,6 @@
-# Packtor
+# packtor
 
-> Copy files and folders to the given directory and create a zip.
+Copy given files and folders to a directory and create its zip.
 
 **Note:**
 
@@ -22,7 +22,7 @@ In `package.json` scripts:
 ```json
 ...
 "packtor": {
-	"destFolder": "deploy",
+  "destFolder": "deploy",
   "files" : [
 		"**/*",
 		"!tests/**/*",
@@ -37,3 +37,8 @@ In `package.json` scripts:
   "deploy": "packtor"
 }
 ```
+
+## Defaults
+
+- **destFolder**: `deploy`
+- **files**: `['**/*', '!node_modules/**/*', '!bower_components/**/*']`

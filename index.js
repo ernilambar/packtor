@@ -6,6 +6,7 @@ const path = require('path')
 const fs = require('fs-extra')
 
 const unixify = require('unixify')
+const { rimraf } = require('rimraf')
 
 const cwd = unixify(process.cwd())
 
@@ -39,6 +40,14 @@ const packtorGetExcludes = (files) => {
   return output
 }
 
+const pactorClearDir = (dir) => {
+  if (fs.existsSync(dir)) {
+  	rimraf.sync(dir)
+  }
+  
+  fs.mkdirSync(dir, { recursive: true })
+}
+
 const alwaysExcludes = [
   `${targetDir}/**/*`,
   'node_modules/**/*',
@@ -51,6 +60,9 @@ let exclude = packtorGetExcludes(settings.files)
 exclude = exclude.concat(alwaysExcludes)
 
 exclude = exclude.filter((item, index, arr) => arr.indexOf(item) === index)
+
+// Clear target directory.
+pactorClearDir(targetDir)
 
 copyfiles([...include, `${targetDir}/${projectName}`], { exclude }, (err) => {
   if (err) {
