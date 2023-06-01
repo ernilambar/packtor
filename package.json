@@ -14,18 +14,16 @@
     "type": "git",
     "url": "git+https://github.com/ernilambar/packtor.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "copy", 
+    "zip"
+  ],
+  "author": "Nilambar Sharma <nilambar@outlook.com> (https://www.nilambar.net/)",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ernilambar/packtor/issues"
   },
   "homepage": "https://github.com/ernilambar/packtor#readme",
-  "standard": {
-    "globals": [
-      "__basedir"
-    ]
-  },
   "devDependencies": {
     "standard": "^17.1.0"
   },
