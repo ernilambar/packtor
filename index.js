@@ -55,6 +55,7 @@ exclude = exclude.filter((item, index, arr) => arr.indexOf(item) === index)
 copyfiles([...include, `${targetDir}/${projectName}`], { exclude }, (err) => {
   if (err) {
     console.log('Error occurred while copying', err)
+    process.exit()
   }
 
   zip({
@@ -65,6 +66,6 @@ copyfiles([...include, `${targetDir}/${projectName}`], { exclude }, (err) => {
 	  console.log('Zip created!')
   }).catch(function (err) {
 	  console.error(err.stack)
-	  process.exit(1)
+	  process.exit()
   })
 })
