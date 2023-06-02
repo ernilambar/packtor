@@ -1,11 +1,6 @@
-import copyfiles from 'copyfiles'
-import bestzip from 'bestzip'
-
-import pkgUxfy from 'unixify'
-
 import { createRequire } from 'module'
-
-import { packtorGetIncludes, packtorGetExcludes, packtorClearDir } from './utils.js'
+import { packtorGetIncludes, packtorGetExcludes, packtorClearDir, packtorCopier, packtorZipper } from './utils.js'
+import pkgUxfy from 'unixify'
 const uxfy = pkgUxfy
 
 const packtor = () => {
@@ -18,8 +13,10 @@ const packtor = () => {
 
   const projectName = pkg.name
 
+  // Default options.
   const defaultOptions = {
     destFolder: 'deploy',
+    createZip: true,
     files: ['**/*', '!node_modules/**/*', '!bower_components/**/*']
   }
 
@@ -38,6 +35,7 @@ const packtor = () => {
   // Clear target directory.
   packtorClearDir(targetDir)
 
+  // Prepare includes and excludes.
   const include = packtorGetIncludes(settings.files)
   let exclude = packtorGetExcludes(settings.files)
 
@@ -45,22 +43,20 @@ const packtor = () => {
 
   exclude = exclude.filter((item, index, arr) => arr.indexOf(item) === index)
 
-  copyfiles([...include, `${targetDir}/${projectName}`], { exclude }, (err) => {
+  // Copy files and folders.
+  packtorCopier([...include, `${targetDir}/${projectName}`], { exclude }, (err) => {
     if (err) {
       console.log('Error occurred while copying', err)
       process.exit()
     }
 
-    bestzip({
-      source: `${projectName}/*`,
-      destination: `${projectName}.zip`,
-      cwd: uxfy(projectDir + '/' + targetDir)
-    }).then(function () {
-      console.log('Zip created!')
-    }).catch(function (err) {
-      console.error(err.stack)
-      process.exit()
-    })
+    if (settings.createZip) {
+      packtorZipper({
+        source: `${projectName}/*`,
+        destination: `${projectName}.zip`,
+        cwd: uxfy(projectDir + '/' + targetDir)
+      })
+    }
   })
 }
 

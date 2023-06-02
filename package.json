@@ -1,7 +1,7 @@
 {
   "name": "packtor",
-  "version": "1.0.1",
-  "description": "",
+  "version": "1.0.2",
+  "description": "Copy files and folders to a directory and create its zip.",
   "main": "index.js",
   "type": "module",
   "bin": {
@@ -17,6 +17,9 @@
   },
   "keywords": [
     "copy",
+    "files",
+    "folders",
+    "directories",
     "zip"
   ],
   "author": "Nilambar Sharma <nilambar@outlook.com> (https://www.nilambar.net/)",
