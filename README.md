@@ -41,4 +41,5 @@ In `package.json` scripts:
 ## Defaults
 
 - **destFolder**: `deploy`
+- **createZip**: `true`
 - **files**: `['**/*', '!node_modules/**/*', '!bower_components/**/*']`
