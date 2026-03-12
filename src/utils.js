@@ -43,7 +43,7 @@ const packtorClearDir = (dir) => {
 }
 
 /**
- * Copies files and directories.
+ * Copies files and directories (callback API).
  *
  * @param {string[]} include Source patterns to copy.
  * @param {string} destPath Destination path (last element for copyfiles).
@@ -53,6 +53,24 @@ const packtorClearDir = (dir) => {
 const packtorCopier = (include, destPath, config, cb) => {
   const paths = [...include, destPath]
   copyfiles(paths, config, cb)
+}
+
+/**
+ * Copies files and directories (Promise API).
+ *
+ * @param {string[]} include Source patterns to copy.
+ * @param {string} destPath Destination path (last element for copyfiles).
+ * @param {Object} config Configuration (e.g. { exclude }).
+ * @returns {Promise<void>} Resolves when copy is done; rejects on error.
+ */
+const packtorCopierAsync = (include, destPath, config) => {
+  const paths = [...include, destPath]
+  return new Promise((resolve, reject) => {
+    copyfiles(paths, config, (err) => {
+      if (err) reject(err)
+      else resolve()
+    })
+  })
 }
 
 /**
@@ -67,4 +85,4 @@ const packtorZipper = (config) => {
   })
 }
 
-export { packtorGetIncludes, packtorGetExcludes, packtorClearDir, packtorCopier, packtorZipper }
+export { packtorGetIncludes, packtorGetExcludes, packtorClearDir, packtorCopier, packtorCopierAsync, packtorZipper }

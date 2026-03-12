@@ -47,5 +47,9 @@
   },
   "standard": {
     "env": ["jest"]
+  },
+  "jest": {
+    "modulePathIgnorePatterns": ["<rootDir>/deploy"],
+    "testPathIgnorePatterns": ["/node_modules/", "<rootDir>/deploy"]
   }
 }

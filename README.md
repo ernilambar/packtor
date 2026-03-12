@@ -1,47 +1,33 @@
 # packtor
 
-Copy given files and folders to a directory and create its zip.
-
-**Note:**
-
-Following files and folders are excluded by default.
-
-* Dot files and folders
-* `node_modules` folder
-* `bower_components` folder
+Copy files and folders to a directory and create a zip.
 
 ## Install
 
 ```sh
 npm install --save-dev packtor
 ```
-## Example
 
-In `package.json` scripts:
+## Usage
+
+Add to `package.json`:
 
 ```json
-...
 "packtor": {
   "destFolder": "deploy",
-  "files" : [
-		"**/*",
-		"!tests/**/*",
-		"!*.json",
-		"!*.lock",
-		"!*.yaml"
-	]
+  "files": ["**/*", "!tests/**/*", "!*.json"]
 },
-...
 "scripts": {
-  ...
   "deploy": "packtor"
 }
 ```
 
-## Defaults
+## Options
 
-- **destFolder**: `deploy`
-- **createZip**: `true`
-- **files**: `['**/*', '!node_modules/**/*', '!bower_components/**/*']`
+| Option       | Default | Description                    |
+| ------------ | ------- | ------------------------------ |
+| **destFolder** | `deploy` | Output directory (always excluded from copy). |
+| **createZip** | `true`   | Create a zip of the copied files. |
+| **files**     | `['**/*', '!node_modules/**/*', '!bower_components/**/*']` | Glob include/exclude (`!` = exclude). |
 
-The destination folder (`destFolder`) is always excluded from the copy source, so it is never included in the set of files being copied.
+By default dot files/folders, `node_modules`, and `bower_components` are not copied.

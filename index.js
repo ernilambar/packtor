@@ -2,4 +2,7 @@
 
 import { packtor } from './src/app.js'
 
-packtor()
+packtor().catch((err) => {
+  console.error(err.message || err)
+  process.exit(1)
+})

@@ -1,77 +1,122 @@
 import { createRequire } from 'module'
 import path from 'node:path'
-import { packtorGetIncludes, packtorGetExcludes, packtorClearDir, packtorCopier, packtorZipper } from './utils.js'
+import {
+  packtorGetIncludes,
+  packtorGetExcludes,
+  packtorClearDir,
+  packtorCopierAsync,
+  packtorZipper
+} from './utils.js'
 import pkgUxfy from 'unixify'
 const uxfy = pkgUxfy
 
-const packtor = () => {
-  const cwd = uxfy(process.cwd())
+const DEFAULT_OPTIONS = {
+  destFolder: 'deploy',
+  createZip: true,
+  files: ['**/*', '!node_modules/**/*', '!bower_components/**/*']
+}
 
+const ALWAYS_EXCLUDES_BASE = [
+  'node_modules/**/*',
+  'bower_components/**/*'
+]
+
+/**
+ * Load and validate package.json from cwd. Throws on error.
+ *
+ * @param {string} cwd Current working directory (unixified).
+ * @returns {{ pkg: object, projectDir: string, projectName: string, settings: object }}
+ */
+function loadPackageConfig (cwd) {
   const require = createRequire(import.meta.url)
   let pkg
   try {
     pkg = require(uxfy(path.join(cwd, 'package.json')))
   } catch (err) {
-    console.error('Unable to load package.json')
-    process.exit(1)
+    const e = new Error('Unable to load package.json')
+    e.cause = err
+    throw e
   }
 
   if (!pkg.name) {
-    console.error('package.json must contain a "name" field')
-    process.exit(1)
+    throw new Error('package.json must contain a "name" field')
   }
 
   const projectDir = cwd
   const projectName = pkg.name
-
-  // Default options.
-  const defaultOptions = {
-    destFolder: 'deploy',
-    createZip: true,
-    files: ['**/*', '!node_modules/**/*', '!bower_components/**/*']
-  }
-
   const packageSettings = pkg.packtor ?? {}
-  const settings = { ...defaultOptions, ...packageSettings }
+  const settings = { ...DEFAULT_OPTIONS, ...packageSettings }
 
-  const targetDir = settings.destFolder
+  return { pkg, projectDir, projectName, settings }
+}
 
-  // destFolder is always forcibly excluded from copy source (see alwaysExcludes).
+/**
+ * Build include and exclude file patterns from settings and target dir.
+ *
+ * @param {object} settings Packtor settings (must have .files and .destFolder).
+ * @param {string} targetDir Resolved target directory (e.g. settings.destFolder).
+ * @returns {{ include: string[], exclude: string[] }}
+ */
+function buildFilePatterns (settings, targetDir) {
   const alwaysExcludes = [
     `${targetDir}/**/*`,
-    'node_modules/**/*',
-    'bower_components/**/*'
+    ...ALWAYS_EXCLUDES_BASE
   ]
-
-  // Clear target directory.
-  packtorClearDir(targetDir)
-
-  // Prepare includes and excludes.
   const include = packtorGetIncludes(settings.files)
   let exclude = packtorGetExcludes(settings.files)
-
   exclude = exclude.concat(alwaysExcludes)
   exclude = [...new Set(exclude)]
+  return { include, exclude }
+}
 
-  // Copy files and folders.
+/**
+ * Copy files to destination using include/exclude patterns.
+ *
+ * @param {string[]} include Include patterns.
+ * @param {string} destPath Destination path.
+ * @param {string[]} exclude Exclude patterns.
+ * @returns {Promise<void>}
+ */
+async function copyFiles (include, destPath, exclude) {
+  await packtorCopierAsync(include, destPath, { exclude })
+}
+
+/**
+ * Create zip from source glob in cwd.
+ *
+ * @param {object} options Options for bestzip: source, destination, cwd.
+ * @returns {Promise<void>}
+ */
+async function createZip (options) {
+  await packtorZipper(options)
+}
+
+/**
+ * Main entry: load config, clear target, copy files, optionally create zip.
+ * Same CLI/config contract; single entry point.
+ *
+ * @returns {Promise<void>}
+ */
+async function packtor () {
+  const cwd = uxfy(process.cwd())
+
+  const { projectDir, projectName, settings } = loadPackageConfig(cwd)
+  const targetDir = settings.destFolder
+
+  packtorClearDir(targetDir)
+
+  const { include, exclude } = buildFilePatterns(settings, targetDir)
   const destPath = path.join(targetDir, projectName)
-  packtorCopier(include, destPath, { exclude }, (err) => {
-    if (err) {
-      console.error('Error occurred while copying:', err)
-      process.exit(1)
-    }
 
-    if (settings.createZip) {
-      packtorZipper({
-        source: `${projectName}/**/*`,
-        destination: `${projectName}.zip`,
-        cwd: uxfy(path.join(projectDir, targetDir))
-      }).catch((err) => {
-        console.error('Error creating zip:', err)
-        process.exit(1)
-      })
-    }
-  })
+  await copyFiles(include, destPath, exclude)
+
+  if (settings.createZip) {
+    await createZip({
+      source: `${projectName}/**/*`,
+      destination: `${projectName}.zip`,
+      cwd: uxfy(path.join(projectDir, targetDir))
+    })
+  }
 }
 
 export { packtor }
