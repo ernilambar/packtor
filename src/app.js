@@ -112,7 +112,7 @@ async function packtor () {
 
   if (settings.createZip) {
     await createZip({
-      source: `${projectName}/**/*`,
+      source: `${projectName}/*`,
       destination: `${projectName}.zip`,
       cwd: uxfy(path.join(projectDir, targetDir))
     })
