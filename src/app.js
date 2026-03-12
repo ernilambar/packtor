@@ -1,4 +1,5 @@
 import { createRequire } from 'module'
+import path from 'node:path'
 import { packtorGetIncludes, packtorGetExcludes, packtorClearDir, packtorCopier, packtorZipper } from './utils.js'
 import pkgUxfy from 'unixify'
 const uxfy = pkgUxfy
@@ -53,7 +54,8 @@ const packtor = () => {
   exclude = exclude.filter((item, index, arr) => arr.indexOf(item) === index)
 
   // Copy files and folders.
-  packtorCopier([...include, `${targetDir}/${projectName}`], { exclude }, (err) => {
+  const destPath = path.join(targetDir, projectName)
+  packtorCopier(include, destPath, { exclude }, (err) => {
     if (err) {
       console.error('Error occurred while copying:', err)
       process.exit(1)
@@ -61,9 +63,12 @@ const packtor = () => {
 
     if (settings.createZip) {
       packtorZipper({
-        source: `${projectName}/*`,
+        source: `${projectName}/**/*`,
         destination: `${projectName}.zip`,
         cwd: uxfy(projectDir + '/' + targetDir)
+      }).catch((err) => {
+        console.error('Error creating zip:', err)
+        process.exit(1)
       })
     }
   })
