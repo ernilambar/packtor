@@ -27,7 +27,7 @@
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "test": "jest"
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "bestzip": "^2.2.1",
@@ -36,20 +36,12 @@
     "unixify": "^1.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.7",
-    "@babel/preset-env": "^7.23.8",
-    "babel-jest": "^30.0.0",
-    "jest": "^30.0.0",
     "standard": "^17.1.0"
   },
   "engines": {
     "node": ">=20"
   },
   "standard": {
-    "env": ["jest"]
-  },
-  "jest": {
-    "modulePathIgnorePatterns": ["<rootDir>/deploy"],
-    "testPathIgnorePatterns": ["/node_modules/", "<rootDir>/deploy"]
+    "env": ["node"]
   }
 }

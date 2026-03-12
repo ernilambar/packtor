@@ -1,8 +1,12 @@
-const path = require('path')
-const fs = require('fs')
-const os = require('os')
-const { execSync } = require('child_process')
+import path from 'path'
+import fs from 'fs'
+import os from 'os'
+import { execSync } from 'child_process'
+import { fileURLToPath } from 'url'
+import { test } from 'node:test'
+import assert from 'node:assert'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const indexPath = path.join(__dirname, '..', 'index.js')
 
 function runPacktor (cwd) {
@@ -29,7 +33,7 @@ test('packtor CLI exits with error when package.json has no "name" field', () =>
     exitCode = err.status
   }
 
-  expect(exitCode).not.toBe(0)
+  assert.notStrictEqual(exitCode, 0)
   fs.rmSync(cwd, { recursive: true })
 })
 
@@ -45,7 +49,7 @@ test('packtor CLI exits with error when package.json is missing', () => {
     exitCode = err.status
   }
 
-  expect(exitCode).not.toBe(0)
+  assert.notStrictEqual(exitCode, 0)
   fs.rmSync(cwd, { recursive: true })
 })
 
@@ -64,9 +68,9 @@ test('packtor CLI creates deploy dir and copies files', () => {
   runPacktor(cwd)
 
   const deployPath = path.join(cwd, 'deploy', 'fixture-app')
-  expect(fs.existsSync(deployPath)).toBe(true)
-  expect(fs.readFileSync(path.join(deployPath, 'foo.txt'), 'utf8')).toBe('fixture content')
-  expect(fs.existsSync(path.join(cwd, 'deploy', 'fixture-app.zip'))).toBe(false)
+  assert.strictEqual(fs.existsSync(deployPath), true)
+  assert.strictEqual(fs.readFileSync(path.join(deployPath, 'foo.txt'), 'utf8'), 'fixture content')
+  assert.strictEqual(fs.existsSync(path.join(cwd, 'deploy', 'fixture-app.zip')), false)
   fs.rmSync(cwd, { recursive: true })
 })
 
@@ -84,15 +88,15 @@ test('packtor CLI creates deploy and attempts zip by default', () => {
     runPacktor(cwd)
     zipCreated = true
   } catch (err) {
-    expect(err.status).toBeDefined()
+    assert.ok(err.status !== undefined)
   }
 
   const deployDir = path.join(cwd, 'deploy', 'zip-app')
-  expect(fs.existsSync(deployDir)).toBe(true)
-  expect(fs.readFileSync(path.join(deployDir, 'bar.txt'), 'utf8')).toBe('bar')
+  assert.strictEqual(fs.existsSync(deployDir), true)
+  assert.strictEqual(fs.readFileSync(path.join(deployDir, 'bar.txt'), 'utf8'), 'bar')
   const zipPath = path.join(cwd, 'deploy', 'zip-app.zip')
   if (zipCreated && fs.existsSync(zipPath)) {
-    expect(fs.statSync(zipPath).size).toBeGreaterThan(0)
+    assert.ok(fs.statSync(zipPath).size > 0)
   }
   fs.rmSync(cwd, { recursive: true, force: true })
 })
