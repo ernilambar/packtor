@@ -12,6 +12,13 @@ test('Get includes files from the list', () => {
   assert.deepStrictEqual(includeFiles, expectedFiles)
 })
 
+test('packtorGetIncludes with mix of files and folder patterns', () => {
+  const sourceFiles = ['a.txt', 'lib/**/*.js', 'config/', '!secret.txt', 'dist/**']
+  const includeFiles = utils.packtorGetIncludes(sourceFiles)
+  const expectedFiles = ['a.txt', 'lib/**/*.js', 'config/', 'dist/**']
+  assert.deepStrictEqual(includeFiles, expectedFiles)
+})
+
 test('Get excludes files from the list', () => {
   const sourceFiles = ['a.txt', '!b.txt', '!c.txt']
   const excludeFiles = utils.packtorGetExcludes(sourceFiles)
@@ -22,6 +29,13 @@ test('Get excludes files from the list', () => {
 test('packtorGetExcludes returns empty array when no exclusions', () => {
   const sourceFiles = ['a.txt', 'b.txt']
   assert.deepStrictEqual(utils.packtorGetExcludes(sourceFiles), [])
+})
+
+test('packtorGetExcludes with mix of files and folder exclusions', () => {
+  const sourceFiles = ['a.txt', 'lib/**', '!node_modules/**', '!lib/secret.js', '!dist/']
+  const excludeFiles = utils.packtorGetExcludes(sourceFiles)
+  const expectedFiles = ['node_modules/**', 'lib/secret.js', 'dist/']
+  assert.deepStrictEqual(excludeFiles, expectedFiles)
 })
 
 test('packtorClearDir creates dir and removes existing content', () => {
@@ -50,6 +64,28 @@ test('packtorCopierAsync copies files to destination', async () => {
 
   process.chdir(originalCwd)
   assert.strictEqual(fs.readFileSync(path.join(destDir, 'hello.txt'), 'utf8'), 'hello')
+  fs.rmSync(cwd, { recursive: true })
+  fs.rmSync(destDir, { recursive: true })
+})
+
+test('packtorCopierAsync copies mix of files and folder to destination', async () => {
+  const cwd = path.join(os.tmpdir(), `packtor-copy-mix-src-${Date.now()}`)
+  const destDir = path.join(os.tmpdir(), `packtor-copy-mix-dest-${Date.now()}`)
+  fs.mkdirSync(cwd, { recursive: true })
+  fs.writeFileSync(path.join(cwd, 'root.txt'), 'root')
+  fs.mkdirSync(path.join(cwd, 'lib'), { recursive: true })
+  fs.writeFileSync(path.join(cwd, 'lib', 'helper.js'), 'module.exports = {}')
+  fs.mkdirSync(path.join(cwd, 'config'), { recursive: true })
+  fs.writeFileSync(path.join(cwd, 'config', 'default.json'), '{}')
+  const originalCwd = process.cwd()
+  process.chdir(cwd)
+
+  await utils.packtorCopierAsync(['root.txt', 'lib/**/*', 'config/**/*'], destDir, {})
+
+  process.chdir(originalCwd)
+  assert.strictEqual(fs.readFileSync(path.join(destDir, 'root.txt'), 'utf8'), 'root')
+  assert.strictEqual(fs.readFileSync(path.join(destDir, 'lib', 'helper.js'), 'utf8'), 'module.exports = {}')
+  assert.strictEqual(fs.readFileSync(path.join(destDir, 'config', 'default.json'), 'utf8'), '{}')
   fs.rmSync(cwd, { recursive: true })
   fs.rmSync(destDir, { recursive: true })
 })

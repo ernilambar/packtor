@@ -1,6 +1,6 @@
 {
   "name": "packtor",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Copy files and folders to a directory and create its zip.",
   "keywords": [
     "copy",
