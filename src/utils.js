@@ -45,22 +45,25 @@ const packtorClearDir = (dir) => {
 /**
  * Copies files and directories.
  *
- * @param {Object} config Configuration.
+ * @param {string[]} include Source patterns to copy.
+ * @param {string} destPath Destination path (last element for copyfiles).
+ * @param {Object} config Configuration (e.g. { exclude }).
+ * @param {Function} cb Callback (err).
  */
-const packtorCopier = (paths, config, cb) => {
+const packtorCopier = (include, destPath, config, cb) => {
+  const paths = [...include, destPath]
   copyfiles(paths, config, cb)
 }
-/**
 
+/**
  * Create zip.
  *
  * @param {Object} config Configuration.
+ * @returns {Promise<void>} Resolves when zip is created; rejects on error.
  */
 const packtorZipper = (config) => {
-  bestzip(config).then(function () {
+  return bestzip(config).then(function () {
     console.log('Zip created!')
-  }).catch(function (err) {
-    console.error(err.stack)
   })
 }
 

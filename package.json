@@ -1,21 +1,7 @@
 {
   "name": "packtor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Copy files and folders to a directory and create its zip.",
-  "main": "index.js",
-  "type": "module",
-  "bin": {
-    "packtor": "./index.js"
-  },
-  "scripts": {
-    "lint": "standard",
-    "lint:fix": "standard --fix",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ernilambar/packtor.git"
-  },
   "keywords": [
     "copy",
     "files",
@@ -23,23 +9,43 @@
     "directories",
     "zip"
   ],
-  "author": "Nilambar Sharma <nilambar@outlook.com> (https://www.nilambar.net/)",
-  "license": "MIT",
+  "homepage": "https://github.com/ernilambar/packtor#readme",
   "bugs": {
     "url": "https://github.com/ernilambar/packtor/issues"
   },
-  "homepage": "https://github.com/ernilambar/packtor#readme",
-  "devDependencies": {
-    "@babel/core": "^7.23.7",
-    "@babel/preset-env": "^7.23.8",
-    "babel-jest": "^29.7.0",
-    "jest": "^29.7.0",
-    "standard": "^17.1.0"
+  "license": "MIT",
+  "author": "Nilambar Sharma <nilambar@outlook.com> (https://www.nilambar.net/)",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "packtor": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ernilambar/packtor.git"
+  },
+  "scripts": {
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "test": "jest"
   },
   "dependencies": {
     "bestzip": "^2.2.1",
     "copyfiles": "^2.4.1",
-    "rimraf": "^5.0.1",
+    "rimraf": "^6.0.0",
     "unixify": "^1.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.8",
+    "babel-jest": "^30.0.0",
+    "jest": "^30.0.0",
+    "standard": "^17.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "standard": {
+    "env": ["jest"]
   }
 }
