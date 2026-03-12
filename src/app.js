@@ -10,7 +10,7 @@ const packtor = () => {
   const require = createRequire(import.meta.url)
   let pkg
   try {
-    pkg = require(uxfy(cwd + '/package.json'))
+    pkg = require(uxfy(path.join(cwd, 'package.json')))
   } catch (err) {
     console.error('Unable to load package.json')
     process.exit(1)
@@ -36,6 +36,7 @@ const packtor = () => {
 
   const targetDir = settings.destFolder
 
+  // destFolder is always forcibly excluded from copy source (see alwaysExcludes).
   const alwaysExcludes = [
     `${targetDir}/**/*`,
     'node_modules/**/*',
@@ -50,8 +51,7 @@ const packtor = () => {
   let exclude = packtorGetExcludes(settings.files)
 
   exclude = exclude.concat(alwaysExcludes)
-
-  exclude = exclude.filter((item, index, arr) => arr.indexOf(item) === index)
+  exclude = [...new Set(exclude)]
 
   // Copy files and folders.
   const destPath = path.join(targetDir, projectName)
@@ -65,7 +65,7 @@ const packtor = () => {
       packtorZipper({
         source: `${projectName}/**/*`,
         destination: `${projectName}.zip`,
-        cwd: uxfy(projectDir + '/' + targetDir)
+        cwd: uxfy(path.join(projectDir, targetDir))
       }).catch((err) => {
         console.error('Error creating zip:', err)
         process.exit(1)

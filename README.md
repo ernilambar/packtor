@@ -43,3 +43,5 @@ In `package.json` scripts:
 - **destFolder**: `deploy`
 - **createZip**: `true`
 - **files**: `['**/*', '!node_modules/**/*', '!bower_components/**/*']`
+
+The destination folder (`destFolder`) is always excluded from the copy source, so it is never included in the set of files being copied.
