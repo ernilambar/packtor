@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.0] - 2026-06-13
+
+* Breaking - Config moved from `package.json` `packtor` key to `.packtorrc.json`.
+* Changed - `files` now uses whitelist semantics; `node_modules` and `.git` are always excluded implicitly.
+
 ## [1.0.4] - 2026-03-12
 
 * Added - Tests for mixed files/folders and zip contents; CI installs unzip on Linux.
