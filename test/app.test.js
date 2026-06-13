@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
-import { execSync } from 'child_process'
+import { execSync, spawnSync } from 'child_process'
 import { fileURLToPath } from 'url'
 import { test } from 'node:test'
 import assert from 'node:assert'
@@ -33,6 +33,41 @@ function runPacktor (cwd) {
     maxBuffer: 10 * 1024 * 1024
   })
 }
+
+test('packtor CLI warns on unknown config key', () => {
+  const cwd = path.join(os.tmpdir(), `packtor-unknown-key-${Date.now()}`)
+  fs.mkdirSync(cwd, { recursive: true })
+  fs.writeFileSync(path.join(cwd, 'package.json'), JSON.stringify({ name: 'warn-app' }))
+  fs.writeFileSync(path.join(cwd, '.packtorrc.json'), JSON.stringify({ createZip: false, typo: true }))
+  fs.writeFileSync(path.join(cwd, 'a.txt'), 'a')
+
+  const result = spawnSync('node', [indexPath], { cwd, encoding: 'utf8' })
+
+  assert.strictEqual(result.status, 0)
+  assert.ok(result.stderr.includes('unknown config key "typo"'))
+  fs.rmSync(cwd, { recursive: true })
+})
+
+test('packtor CLI exits with error when "include" is not an array', () => {
+  const cwd = path.join(os.tmpdir(), `packtor-bad-include-${Date.now()}`)
+  fs.mkdirSync(cwd, { recursive: true })
+  fs.writeFileSync(path.join(cwd, 'package.json'), JSON.stringify({ name: 'bad-include-app' }))
+  fs.writeFileSync(path.join(cwd, '.packtorrc.json'), JSON.stringify({ files: '**/*' }))
+
+  let exitCode
+  let stderr = ''
+  try {
+    execSync(`node "${indexPath}"`, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] })
+    exitCode = 0
+  } catch (err) {
+    exitCode = err.status
+    stderr = err.stderr
+  }
+
+  assert.notStrictEqual(exitCode, 0)
+  assert.ok(stderr.includes('"files" must be an array'))
+  fs.rmSync(cwd, { recursive: true })
+})
 
 test('packtor CLI exits with error when package.json has no "name" field', () => {
   const cwd = path.join(os.tmpdir(), `packtor-no-name-${Date.now()}`)
@@ -75,10 +110,11 @@ test('packtor CLI creates deploy dir and copies files', () => {
   fs.mkdirSync(cwd, { recursive: true })
   fs.writeFileSync(
     path.join(cwd, 'package.json'),
-    JSON.stringify({
-      name: 'fixture-app',
-      packtor: { createZip: false }
-    })
+    JSON.stringify({ name: 'fixture-app' })
+  )
+  fs.writeFileSync(
+    path.join(cwd, '.packtorrc.json'),
+    JSON.stringify({ createZip: false })
   )
   fs.writeFileSync(path.join(cwd, 'foo.txt'), 'fixture content')
 
@@ -96,10 +132,11 @@ test('packtor CLI copies mix of files and folders to deploy', () => {
   fs.mkdirSync(cwd, { recursive: true })
   fs.writeFileSync(
     path.join(cwd, 'package.json'),
-    JSON.stringify({
-      name: 'mix-app',
-      packtor: { createZip: false }
-    })
+    JSON.stringify({ name: 'mix-app' })
+  )
+  fs.writeFileSync(
+    path.join(cwd, '.packtorrc.json'),
+    JSON.stringify({ createZip: false })
   )
   fs.writeFileSync(path.join(cwd, 'README.md'), '# mix')
   fs.writeFileSync(path.join(cwd, 'index.js'), 'console.log("hi")')
@@ -116,6 +153,32 @@ test('packtor CLI copies mix of files and folders to deploy', () => {
   assert.strictEqual(fs.readFileSync(path.join(deployPath, 'index.js'), 'utf8'), 'console.log("hi")')
   assert.strictEqual(fs.readFileSync(path.join(deployPath, 'lib', 'util.js'), 'utf8'), 'export {}')
   assert.strictEqual(fs.readFileSync(path.join(deployPath, 'config', 'default.json'), 'utf8'), '{"env":"dev"}')
+  fs.rmSync(cwd, { recursive: true })
+})
+
+test('packtor CLI does not copy node_modules or .git', () => {
+  const cwd = path.join(os.tmpdir(), `packtor-excludes-${Date.now()}`)
+  fs.mkdirSync(cwd, { recursive: true })
+  fs.writeFileSync(
+    path.join(cwd, 'package.json'),
+    JSON.stringify({ name: 'excludes-app' })
+  )
+  fs.writeFileSync(
+    path.join(cwd, '.packtorrc.json'),
+    JSON.stringify({ createZip: false })
+  )
+  fs.writeFileSync(path.join(cwd, 'main.js'), 'main')
+  fs.mkdirSync(path.join(cwd, 'node_modules', 'some-pkg'), { recursive: true })
+  fs.writeFileSync(path.join(cwd, 'node_modules', 'some-pkg', 'index.js'), 'pkg')
+  fs.mkdirSync(path.join(cwd, '.git'), { recursive: true })
+  fs.writeFileSync(path.join(cwd, '.git', 'config'), '[core]')
+
+  runPacktor(cwd)
+
+  const deployPath = path.join(cwd, 'deploy', 'excludes-app')
+  assert.strictEqual(fs.existsSync(path.join(deployPath, 'main.js')), true)
+  assert.strictEqual(fs.existsSync(path.join(deployPath, 'node_modules')), false)
+  assert.strictEqual(fs.existsSync(path.join(deployPath, '.git')), false)
   fs.rmSync(cwd, { recursive: true })
 })
 
@@ -160,7 +223,11 @@ test('packtor CLI zip file contains given files and folders', () => {
   fs.mkdirSync(cwd, { recursive: true })
   fs.writeFileSync(
     path.join(cwd, 'package.json'),
-    JSON.stringify({ name: 'zip-contents-app', packtor: { createZip: true } })
+    JSON.stringify({ name: 'zip-contents-app' })
+  )
+  fs.writeFileSync(
+    path.join(cwd, '.packtorrc.json'),
+    JSON.stringify({ createZip: true })
   )
   fs.writeFileSync(path.join(cwd, 'root.txt'), 'root')
   fs.mkdirSync(path.join(cwd, 'lib', 'utils'), { recursive: true })

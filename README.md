@@ -10,24 +10,66 @@ npm install --save-dev packtor
 
 ## Usage
 
-Add to `package.json`:
+Add a `.packtorrc.json` to your project root:
 
 ```json
-"packtor": {
+{
   "destFolder": "deploy",
-  "files": ["**/*", "!tests/**/*", "!*.json"]
-},
+  "createZip": true,
+  "files": [
+    "src/**/*",
+    "includes/**/*",
+    "*.php",
+    "readme.txt",
+    "!src/tests/**/*"
+  ]
+}
+```
+
+Add a script to `package.json`:
+
+```json
 "scripts": {
-  "deploy": "packtor"
+  "pack": "packtor"
 }
 ```
 
 ## Options
 
-| Option       | Default | Description                    |
-| ------------ | ------- | ------------------------------ |
+| Option | Default | Description |
+| --- | --- | --- |
 | **destFolder** | `deploy` | Output directory (always excluded from copy). |
-| **createZip** | `true`   | Create a zip of the copied files. |
-| **files**     | `['**/*', '!node_modules/**/*', '!bower_components/**/*']` | Glob include/exclude (`!` = exclude). |
+| **createZip** | `true` | Create a zip of the copied files. |
+| **files** | `['**/*']` | Whitelist of glob patterns to copy. Prefix with `!` to exclude. |
 
-By default dot files/folders, `node_modules`, and `bower_components` are not copied.
+The following are always excluded regardless of `files`: `node_modules`, `.git`, and `destFolder`.
+
+## Migrating from v1
+
+Move the `packtor` key from `package.json` into a new `.packtorrc.json` file.
+
+**Before (`package.json`):**
+
+```json
+"packtor": {
+  "files": [
+    "**/*",
+    "!*.js",
+    "!package.json",
+    "!*.lock"
+  ]
+}
+```
+
+**After (`.packtorrc.json`):**
+
+```json
+{
+  "files": [
+    "src/**/*",
+    "includes/**/*",
+    "*.php",
+    "readme.txt"
+  ]
+}
+```
