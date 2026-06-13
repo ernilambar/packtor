@@ -15,6 +15,10 @@
   },
   "license": "MIT",
   "author": "Nilambar Sharma <nilambar@outlook.com> (https://www.nilambar.net/)",
+  "files": [
+    "index.js",
+    "src/"
+  ],
   "main": "index.js",
   "type": "module",
   "bin": {
