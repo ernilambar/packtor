@@ -13,24 +13,24 @@
   "bugs": {
     "url": "https://github.com/ernilambar/packtor/issues"
   },
-  "license": "MIT",
-  "author": "Nilambar Sharma <nilambar@outlook.com> (https://www.nilambar.net/)",
-  "files": [
-    "index.js",
-    "src/"
-  ],
-  "main": "index.js",
-  "type": "module",
-  "bin": {
-    "packtor": "index.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ernilambar/packtor.git"
   },
+  "license": "MIT",
+  "author": "Nilambar Sharma <nilambar@outlook.com> (https://www.nilambar.net/)",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "packtor": "index.js"
+  },
+  "files": [
+    "index.js",
+    "src/"
+  ],
   "scripts": {
-    "lint": "standard",
-    "lint:fix": "standard --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "node --test test/*.test.js"
   },
   "dependencies": {
@@ -40,14 +40,10 @@
     "unixify": "^1.0.0"
   },
   "devDependencies": {
-    "standard": "^17.1.0"
+    "eslint": "^9.39.5",
+    "neostandard": "^0.13.0"
   },
   "engines": {
-    "node": ">=20"
-  },
-  "standard": {
-    "env": [
-      "node"
-    ]
+    "node": ">=22.13.0"
   }
 }
